@@ -26,6 +26,8 @@ After downloading the `.pcap` file and opening it in Wireshark, the traffic was 
 
 The challenge description hinted that *"the attacker concealed his moves in a well timely manner"* — this suggested the data was hidden in the **packet structure itself**, not in HTTP payloads.
 
+<img width="1189" height="408" alt="image" src="https://github.com/user-attachments/assets/90a2d06e-fbea-4d02-9c7d-b50e61256743" />
+
 ### Step 2 — Spotting the anomaly
 
 Looking closely at packet lengths, most SYN packets had `Len=8`. But a small number had `Len=12` or `Len=4` — standing out from the uniform noise.
@@ -35,6 +37,8 @@ This was the key observation: **data was being smuggled inside TCP SYN packet pa
 Filtered for only the anomalous packets:
 - Packets with `Len=12`
 - Packets with `Len=4`
+
+<img width="1161" height="169" alt="image" src="https://github.com/user-attachments/assets/2d04808b-adee-4086-a54e-73509477b66d" />
 
 ### Step 3 — Extracting and decoding
 
