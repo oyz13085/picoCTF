@@ -24,17 +24,17 @@ The target exposes an undocumented `/sessions` endpoint that dumps the server's 
 
 The app lets anyone register, so the first step was to create an account (`abc`) and log in to see what an authenticated user looks like.
 
-![Login / register page](old_sessions_media/01_login_register.png)
+<img width="633" height="366" alt="image" src="https://github.com/user-attachments/assets/56a52369-b051-4759-a6d4-dbc3c2f937f0" />
 
 Once logged in, the homepage greets the current user and shows a comments board. One comment stood out — `mary_jones_8992` points directly at an undocumented page:
 
-![Homepage as user abc, with the /sessions hint in the comments](old_sessions_media/02_homepage_user_hint.png)
+<img width="645" height="582" alt="image" src="https://github.com/user-attachments/assets/cb091820-d9ac-478f-8bcd-dfc83f1e4263" />
 
 > `mary_jones_8992`: *"Hey I found a strange page at /sessions"*
 
 In a CTF this kind of in-band hint is almost always the intended path, so I browsed to `/sessions` directly. The endpoint leaks the entire server-side session store — every active session token alongside the account it belongs to:
 
-![/sessions endpoint dumping all active session tokens and their keys](old_sessions_media/03_sessions_page_leak.png)
+<img width="734" height="193" alt="image" src="https://github.com/user-attachments/assets/6a247021-2138-4246-ac53-528feb805e7b" />
 
 ```
 1) session:QJao-CkUK7KctX-mivL6aK3p7Hhjo9Ablf7XnDKdqJo, {'_permanent': True, 'key': 'admin'}
@@ -51,11 +51,11 @@ That gives a clean two-flaw chain:
 
 The session is tracked by a cookie literally named `session`, so hijacking it is just a matter of replacing my own cookie value with admin's. In DevTools → Application → Cookies, I edited the `session` cookie for the site and pasted in admin's token (`QJao-CkUK7KctX-mivL6aK3p7Hhjo9Ablf7XnDKdqJo`):
 
-![DevTools Application tab, editing the session cookie to admin's token](old_sessions_media/04_devtools_cookie_swap.png)
+<img width="737" height="617" alt="image" src="https://github.com/user-attachments/assets/4891b634-1222-4a96-9d30-dd8528e8def3" />
 
 After refreshing, the server read the swapped cookie, matched it to the still-valid admin session, and rendered the homepage as `admin` — with the flag printed at the top:
 
-![Homepage as admin showing the flag](old_sessions_media/05_homepage_admin_flag.png)
+<img width="665" height="655" alt="image" src="https://github.com/user-attachments/assets/6b58069c-e4ac-486d-90cc-5a91968c698d" />
 
 The flag text itself spells out the lesson: *set session expirations.*
 
