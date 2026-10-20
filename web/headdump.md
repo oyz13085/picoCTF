@@ -20,7 +20,7 @@ A simple blog-style news website ("picoCTF News") serving articles about various
 
 The site is a blog with several posts. The post that matters is the one about **backend development**, tagged `#nodejs`, `#swagger UI`, and `#API Documentation` — a clear pointer that the backend exposes Swagger-generated API docs.
 
-![Homepage post pointing to API documentation](headdump_media/01_homepage_api_post.png)
+<img width="1917" height="1074" alt="image" src="https://github.com/user-attachments/assets/9c3b691d-b2d6-4692-b43d-d5b2ddb46863" />
 
 Following that lead to `/api-docs` opens the Swagger UI, which enumerates every endpoint the backend exposes. Most are ordinary blog routes (`GET /`, `GET /about`, `GET /api/posts`, etc.), but under a **"Diagnosing"** group there's a standout:
 
@@ -28,13 +28,13 @@ Following that lead to `/api-docs` opens the Swagger UI, which enumerates every 
 GET /heapdump   —   Diagnosing the memory allocation.
 ```
 
-![Swagger UI listing the /heapdump endpoint](headdump_media/02_swagger_endpoints.png)
+<img width="1918" height="1079" alt="image" src="https://github.com/user-attachments/assets/ddd104d9-4fbd-40c6-b5e5-41185ce45325" />
 
 A **heap dump** is a snapshot of everything the process has allocated in memory at that moment. In a Node.js app, anything the server has touched — config values, environment variables, strings, secrets — can end up captured in it. If a flag is held in memory, a heap dump leaks it. This is the real-world risk class behind exposed diagnostic/debug endpoints (`/heapdump`, `/debug`, actuator endpoints, etc.): memory-inspection tooling left reachable in production.
 
 Executing the endpoint from Swagger returns a downloadable `.heapsnapshot` file with HTTP 200 and `content-type: application/octet-stream`.
 
-![Executing /heapdump in Swagger UI returns a downloadable file](headdump_media/03_heapdump_execute.png)
+<img width="1445" height="770" alt="image" src="https://github.com/user-attachments/assets/338deb3e-57cd-4bef-b8b5-7501d649c04c" />
 
 Rather than click through Swagger, the clean way to grab it is directly with `curl`. `-O` saves the response to a local file named after the URL path:
 
@@ -44,7 +44,7 @@ file heapdump
 # heapdump: ASCII text, with very long lines (64671)
 ```
 
-![curl download and file identification of the heapdump](headdump_media/04_curl_file.png)
+<img width="425" height="134" alt="image" src="https://github.com/user-attachments/assets/1517090a-0664-44fd-a4d1-2adce9d9cc2a" />
 
 `file` reports the dump is just ASCII text with extremely long lines — so there's no need for a dedicated heap-snapshot viewer. A plain text search finds the flag. The flag format is `prefix{...}`, so an extended-regex grep for that shape pulls it straight out without having to scroll through a 64k-character line:
 
@@ -56,7 +56,7 @@ grep -oE "[A-Za-z0-9_-]+\{[^}]+\}" heapdump
 - `-E` enables extended regex so `{`, `}`, and `+` work without backslash-escaping.
 - `[A-Za-z0-9_-]+\{[^}]+\}` matches `anyprefix{anything-up-to-a-closing-brace}` — so it catches the flag regardless of its prefix, which is handy across mirrors that rebrand the `picoCTF{...}` prefix.
 
-![grep extracting the flag from the heapdump](headdump_media/05_grep_flag.png)
+<img width="650" height="174" alt="image" src="https://github.com/user-attachments/assets/7d97bc41-2a99-4884-a8b0-9177145ea8fc" />
 
 The grep returns the flag on the first match (alongside a few unrelated `{...}` noise matches like `d{1,4}` from the dump's internal data, which are easy to tell apart).
 
